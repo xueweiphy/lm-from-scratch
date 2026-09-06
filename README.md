@@ -74,8 +74,8 @@ python -m pytest tests/                            # schedule, clipping, data lo
 ```
 
 ```bash
-python train.py --nrun 5000 --batch_size 32 --device mps   # every hyperparameter is a flag: python train.py -h
-python train.py --load_ckpt                                # resume from the checkpoint, append to the CSV log
+python train.py Nrun=5000 Batch_size=32 Device=mps     # any setting at the top of train.py as key=value
+python train.py LoadCkpt=True                            # resume from the checkpoint, append to the CSV log
 ```
 
 Training writes `checkpoints/<name>.pt` (model + optimizer + step, resumable) and
