@@ -59,6 +59,7 @@ model/        model.py — all modules + softmax, attention, cross-entropy
 training/     optim.py — AdamW;  schedule.py — cosine LR schedule with warmup;  clip.py — gradient clipping;  data.py — random-window batch loader;  checkpoint.py — save/load
 experiments/  tokenizer experiments, arXiv corpus builder, corpus → uint16 token-ID encoding, and the trained vocabularies
 data/         corpora and encoded token IDs (gitignored): TinyStories valid .txt/.npy, sample_50MB.txt
+train.py      training loop: memmap data, warmup+cosine LR, clipping, checkpoints, CSV logging
 tests/        pytest suite for the training utilities (mirrors the CS336 checks)
 ```
 
@@ -72,7 +73,13 @@ python experiments/fetch_arxiv.py                   # arXiv hep-ph abstracts →
 python -m pytest tests/                            # schedule, clipping, data loader, checkpointing
 ```
 
-<!-- TODO: train.py usage. -->
+```bash
+python train.py --nrun 5000 --batch_size 32 --device mps   # every hyperparameter is a flag: python train.py -h
+python train.py --load_ckpt                                # resume from the checkpoint, append to the CSV log
+```
+
+Training writes `checkpoints/<name>.pt` (model + optimizer + step, resumable) and
+`logs/<name>.csv` (step, train loss, val loss, lr, wall-clock) — both gitignored.
 
 ## Provenance
 

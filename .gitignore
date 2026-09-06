@@ -7,3 +7,5 @@ data/
 *.npy
 .DS_Store
 *.swp
+checkpoints/
+logs/
