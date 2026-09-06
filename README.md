@@ -1,11 +1,17 @@
 # lm-from-scratch
 
-A decoder-only Transformer language model built from the ground up: a byte-level BPE
-tokenizer trained on TinyStories and OpenWebText, and every layer of the model —
-linear, embedding, RMSNorm, SwiGLU, RoPE, scaled dot-product attention, multi-head
-attention, the pre-norm block, the full LM, and the cross-entropy loss — written
-directly on `torch.nn.Module` with no `nn.Linear`, `nn.Embedding`, `nn.LayerNorm`
-or `nn.functional` shortcuts.
+A language model built from scratch, following the arc of Stanford's
+[CS336: Language Modeling from Scratch](https://stanford-cs336.github.io/) and its
+Assignment 1. The premise of the course is that you understand a system by building
+every piece of it yourself, so nothing here is imported from a library beyond raw
+tensors: the byte-level BPE tokenizer (trained on TinyStories and OpenWebText), every
+layer of the decoder-only Transformer — linear, embedding, RMSNorm, SwiGLU, RoPE,
+scaled dot-product attention, multi-head attention, the pre-norm block, the full LM,
+the cross-entropy loss — and the training machinery around it: AdamW, the cosine
+schedule with warmup, gradient clipping, the random-window data loader, and
+checkpointing. Everything is written directly on `torch.nn.Module` and `torch.optim.Optimizer`,
+with no `nn.Linear`, `nn.Embedding`, `nn.LayerNorm`, `nn.functional`, or `torch.optim.AdamW`
+shortcuts, and each piece is checked against the assignment's reference tests.
 
 <!-- TODO: lead with a generated TinyStories sample and the training loss curve
      once train.py exists. A reviewer should see results before code. -->
@@ -83,7 +89,8 @@ Training writes `checkpoints/<name>.pt` (model + optimizer + step, resumable) an
 
 ## Provenance
 
-Built while working through Stanford CS336 Assignment 1. The test harness in that
-repo (28 tests: tokenizer, BPE training, every model component, AdamW, LR schedule,
-gradient clipping, data loading, checkpointing) passes
-against this code.
+The structure and the problem sequence follow Stanford CS336 Assignment 1
+(spring 2026 handout); the code is my own. The assignment's test harness (28 tests:
+tokenizer, BPE training, every model component, AdamW, LR schedule, gradient
+clipping, data loading, checkpointing) passes against this code. The assignment
+repo itself is not included here — only the implementations.

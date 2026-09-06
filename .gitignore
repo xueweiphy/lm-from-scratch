@@ -9,3 +9,4 @@ data/
 *.swp
 checkpoints/
 logs/
+train_macmini.py
