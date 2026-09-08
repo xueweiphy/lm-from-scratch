@@ -68,6 +68,7 @@ data/         corpora and encoded token IDs (gitignored): TinyStories valid .txt
 train.py      training loop: memmap data, warmup+cosine LR, clipping, checkpoints, CSV logging
 sweep.sh      learning-rate sweep launcher (sequential, one GPU)
 tests/        pytest suite for the training utilities (mirrors the CS336 checks)
+drills/       timed from-memory rebuilds of the whole model (practice notebooks, not library code)
 ```
 
 ## Running
