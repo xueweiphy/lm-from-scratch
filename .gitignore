@@ -10,3 +10,6 @@ data/
 checkpoints/
 logs/
 train_macmini.py
+logs_*/
+logs_*.log
+logs_*.png
