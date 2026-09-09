@@ -69,6 +69,17 @@ class FFN_swiglu ( torch.nn.Module ) :
 
 
 
+class FFN_silu ( torch.nn.Module ) :
+    """ FFN_SiLU ( x ) = W2 SiLU ( W1 x )   -- eq (29), swiglu_ablation.  No W3, no gating.
+        d_ff = 4 * dmodel  (set by the caller) so the parameter count matches SwiGLU. """
+    def __init__ ( self, dmodel,  d_ff = None , device = None, dtype = None ) :
+        super().__init__()
+        raise NotImplementedError
+
+    def forward ( self, x ) :
+        raise NotImplementedError
+
+
 class RoPE ( torch.nn.Module ) :
     def __init__ ( self, theta, d_k, max_seq_len , device = None )  :
         super().__init__ ()
@@ -175,13 +186,14 @@ class MultiheadSelfAttention ( torch.nn.Module) :
 
 
 class Transformer_block (torch.nn.Module) :
-    def __init__ ( self, d_model, num_heads, d_ff ,eps : float = 1e-5, device = None,  dtype = None , max_seq_len = None, theta = None , norm = "rms" , norm_pos = "pre" ):
+    def __init__ ( self, d_model, num_heads, d_ff ,eps : float = 1e-5, device = None,  dtype = None , max_seq_len = None, theta = None , norm = "rms" , norm_pos = "pre" , ffn = "swiglu" ):
         super().__init__()
         self.norm_pos = norm_pos
         self.norm1 = RmsNorm ( d_model, eps,  device , dtype ) if norm == "rms" else torch.nn.Identity()   # norm="none" -> layer_norm_ablation
         self.norm2 = RmsNorm ( d_model, eps,  device , dtype ) if norm == "rms" else torch.nn.Identity()
         self.mha = MultiheadSelfAttention  (   d_model, num_heads  , device = device, dtype = dtype , max_seq_len = max_seq_len, theta = theta)
-        self.ffn = FFN_swiglu ( d_model, d_ff = d_ff , device = device, dtype = dtype )
+        Ffn = FFN_swiglu if ffn == "swiglu" else FFN_silu                    # ffn="silu" -> swiglu_ablation
+        self.ffn = Ffn ( d_model, d_ff = d_ff , device = device, dtype = dtype )
 
 
 
@@ -201,13 +213,13 @@ class Transformer_block (torch.nn.Module) :
 
 class Transformer_lm ( torch.nn.Module ) :
     def __init__ ( self, vocab_size,  context_length ,  num_layers, d_model, num_heads, d_ff ,
-                   eps : float = 1e-5, device = None,  dtype = None , theta = None , norm = "rms" , norm_pos = "pre" )  :
+                   eps : float = 1e-5, device = None,  dtype = None , theta = None , norm = "rms" , norm_pos = "pre" , ffn = "swiglu" )  :
 
         super().__init__()
         self.cmap = Embedding ( vocab_size , d_model, device = device , dtype = dtype )
         
         self.block = torch.nn.ModuleList ( [ Transformer_block ( d_model, num_heads, d_ff ,eps, 
-                                        device = device, dtype = dtype , max_seq_len = context_length, theta = theta , norm = norm , norm_pos = norm_pos )  
+                                        device = device, dtype = dtype , max_seq_len = context_length, theta = theta , norm = norm , norm_pos = norm_pos , ffn = ffn )  
                                              for _ in range ( num_layers )  ] ) 
 
         self.norm = RmsNorm ( d_model, eps,  device , dtype ) if norm == "rms" else torch.nn.Identity()

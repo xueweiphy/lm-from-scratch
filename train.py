@@ -17,21 +17,21 @@ Nrun, Batch_size, Alpha_max, Alpha_min, Tw, Max_norm = 1000, 8, 1e-3, 1e-4, 100,
 File_train, File_val = "data/tinystories_sample50MB.npy", "data/tinystories_valid.npy"
 Ckpt_path, Index_checkpoint, LoadCkpt = "checkpoints/tinystories.pt", 500, False
 Log_path, Eval_every, Eval_batches = "logs/tinystories.csv", 100, 10
-Norm, Norm_pos, Pos = "rms", "pre", "rope"     # ablations: Norm=none, Norm_pos=post, Pos=none
+Norm, Norm_pos, Pos, Ffn = "rms", "pre", "rope", "swiglu"     # ablations: Norm=none, Norm_pos=post, Pos=none, Ffn=silu
 Device = "cpu"
 
 for arg in sys.argv[1:]:                       # e.g. Nrun=5000 -> Nrun = 5000 (same type as the default)
     key, value = arg.split("=", 1)
     default = globals()[key]
     globals()[key] = value == "True" if isinstance(default, bool) else type(default)(value)
-Dff = round ( 8 * Dmodel / 3 / 64 ) * 64
+Dff = round ( 8 * Dmodel / 3 / 64 ) * 64 if Ffn == "swiglu" else 4 * Dmodel
 Tc = Nrun
 # ---------------------------------------------------------------------------
 
 data = np.load ( File_train, mmap_mode="r" )
 data_val = np.load ( File_val, mmap_mode="r" )
 
-transformer = Transformer_lm ( Vocab_size, Context_length, Num_layers, Dmodel, Num_heads, Dff, device = Device, theta = Theta if Pos == "rope" else None , norm = Norm , norm_pos = Norm_pos )
+transformer = Transformer_lm ( Vocab_size, Context_length, Num_layers, Dmodel, Num_heads, Dff, device = Device, theta = Theta if Pos == "rope" else None , norm = Norm , norm_pos = Norm_pos , ffn = Ffn )
 opt = AdamW ( transformer.parameters(), lr = Alpha_max, betas = ( 0.9, 0.999 ), eps = 1.e-8, weight_decay = 0.01 )
 
 
