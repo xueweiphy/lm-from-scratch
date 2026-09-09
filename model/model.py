@@ -69,17 +69,6 @@ class FFN_swiglu ( torch.nn.Module ) :
 
 
 
-class FFN_silu ( torch.nn.Module ) :
-    """ FFN_SiLU ( x ) = W2 SiLU ( W1 x )   -- eq (29), swiglu_ablation.  No W3, no gating.
-        d_ff = 4 * dmodel  (set by the caller) so the parameter count matches SwiGLU. """
-    def __init__ ( self, dmodel,  d_ff = None , device = None, dtype = None ) :
-        super().__init__()
-        raise NotImplementedError
-
-    def forward ( self, x ) :
-        raise NotImplementedError
-
-
 class RoPE ( torch.nn.Module ) :
     def __init__ ( self, theta, d_k, max_seq_len , device = None )  :
         super().__init__ ()
