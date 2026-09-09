@@ -76,7 +76,6 @@ class FFN_silu ( torch.nn.Module ) :
         self.dmodel = dmodel
         self.dff    = d_ff
         self.W1 = Linear ( dmodel, d_ff, device=device, dtype=dtype )
-        #self.W3 = Linear ( dmodel, d_ff, device=device, dtype=dtype )
         self.W2 = Linear ( d_ff, dmodel, device=device, dtype=dtype )
 
         
