@@ -17,6 +17,7 @@ CKPT=${CKPT:-/tmp}                       # 272 MB per run — keep these off EOS
 LOGDIR=${LOGDIR:-logs}                   # point at EOS so the CSVs survive a killed session
 BATCH=${BATCH:-32}
 CLIP=${CLIP:-1.0}                       # CLIP=1e9 turns clipping off, to see the true edge
+MIN=${MIN:-1e-4}                         # MIN=1e9 pins lr at Alpha_max (constant schedule after warmup)
 DEV=${DEV:-cuda}                         # mps / cpu to rehearse without a GPU
 
 if [ "$1" = probe ] ; then LRS="1e-3"; STEPS=${STEPS:-200}; EVERY=50
@@ -26,7 +27,7 @@ mkdir -p $LOGDIR
 for LR in $LRS ; do
     echo "=== Alpha_max=$LR  batch=$BATCH  steps=$STEPS  $(date +%H:%M:%S) ==="
     python train.py Device=$DEV Batch_size=$BATCH Nrun=$STEPS Alpha_max=$LR \
-        Eval_every=$EVERY Max_norm=$CLIP File_train=$TRAIN File_val=$VAL \
+        Eval_every=$EVERY Max_norm=$CLIP Alpha_min=$MIN File_train=$TRAIN File_val=$VAL \
         Log_path=$LOGDIR/lr$LR.csv Ckpt_path=$CKPT/lr$LR.pt
 done
 echo "=== done $(date +%H:%M:%S) ==="
