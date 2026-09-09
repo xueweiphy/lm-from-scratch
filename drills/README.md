@@ -11,6 +11,7 @@ than applied, so successive drills can be diffed against each other.
 | drill | date | time | outcome |
 |---|---|---|---|
 | 1 | 2026-09-07 | 3 h 45 min | all modules + training loop; ran, loss 9.26 → 5.37 in 10 steps |
+| 2 | 2026-09-09 | 2 h 00 min | all modules + training loop; ran, loss 9.24 → 7.90; two defects at review, both fixed the same day |
 
 ## Drill 1 — what had to be looked up
 
@@ -34,3 +35,24 @@ the cosine schedule with warmup (constant lr instead), gradient clipping (omitte
 
 Checks worth keeping: the first loss must be ln(vocab_size); a negative loss means the
 loss function, not the model; a model that learns *too* fast is a leak.
+
+## Drill 2 — what had to be looked up
+
+Five of the six drill-1 defects did not recur: the mask is assigned, `gamma` is applied,
+`Mo` is applied, the model returns logits, and the cross-entropy subtracts the max in
+both terms. Two new ones, found on review:
+
+1. `TransformerBlock.forward` computed `ln1(xin)` and then passed `xin` to attention —
+   the norm was discarded, leaving the attention sublayer with no pre-norm. Same class
+   of error as drill 1's `masked_fill`: a value computed and dropped.
+2. RoPE's `positions` branches were inverted, so the `None` path indexed the table with
+   `None` and added an axis. It broadcast correctly only because T == Tmax in this run —
+   the same accident as drill 1's `[:seqlen+1]`. RoPE's position path has now failed
+   twice; it needs its own shape test with T < Tmax.
+
+Still open, and still using stand-ins: AdamW (`torch.optim.AdamW`), the cosine schedule
+with warmup, and gradient clipping. Those are the target for drill 3.
+
+Minor, not fixed: `RmsNorm` adds eps outside the square root (`x/(sqrt(ms)+eps)`) where
+the reference has it inside (`x/sqrt(ms+eps)`); the two differ only when the mean square
+approaches zero.
