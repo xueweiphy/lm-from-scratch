@@ -36,7 +36,33 @@ Full write-up: [`experiments/TOKENIZER_EXPERIMENTS.md`](experiments/TOKENIZER_EX
 
 ### Model
 
-<!-- TODO: parameter count, training config, loss curve, perplexity, sample text. -->
+22.7M parameters: d_model 512, 4 layers, 16 heads, SwiGLU d_ff 1344, context 256,
+vocabulary 10,000, RoPE θ = 10,000. Trained with AdamW (β = 0.9/0.999, weight decay
+0.01), a cosine schedule with 100 steps of warmup decaying to a 1e-4 floor, and
+gradient clipping at global norm 1.0.
+
+Best validation loss **1.615** — perplexity 5.03, or 2.33 bits per token — after 5,000
+steps at batch 32 (41M tokens) on TinyStories, about 24 minutes on one A100 MIG slice
+(3g.20gb). Training and validation loss track each other throughout; no overfitting at
+this budget.
+
+The peak learning rate was chosen by a four-point sweep at the same budget:
+
+| peak lr | best val loss |
+|---|---:|
+| 3e-4 | 1.755 |
+| **1e-3** | **1.615** |
+| 3e-3 | 2.100 |
+| 1e-2 | 2.665 |
+
+![learning curves and sweep curve](experiments/lr_sweep.png)
+
+Two honest caveats. Nothing diverged — even 1e-2 descended monotonically, just to a
+worse floor, so this sweep brackets the optimum without reaching the instability cliff.
+And 3e-4 was still descending at step 5,000 while 1e-3 had flattened, so the ordering
+between those two could change at a larger token budget.
+
+<!-- TODO: a generated sample, once §6 decoding exists. -->
 
 ## Architecture
 
