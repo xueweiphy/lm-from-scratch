@@ -177,9 +177,8 @@ class MultiheadSelfAttention ( torch.nn.Module) :
 class Transformer_block (torch.nn.Module) :
     def __init__ ( self, d_model, num_heads, d_ff ,eps : float = 1e-5, device = None,  dtype = None , max_seq_len = None, theta = None , norm = "rms" ):
         super().__init__()
-        Norm = RmsNorm if norm == "rms" else ( lambda *args : torch.nn.Identity() )     # norm="none" -> layer_norm_ablation
-        self.norm1 = Norm ( d_model, eps,  device , dtype )
-        self.norm2 = Norm ( d_model, eps,  device , dtype )
+        self.norm1 = RmsNorm ( d_model, eps,  device , dtype ) if norm == "rms" else torch.nn.Identity()   # norm="none" -> layer_norm_ablation
+        self.norm2 = RmsNorm ( d_model, eps,  device , dtype ) if norm == "rms" else torch.nn.Identity()
         self.mha = MultiheadSelfAttention  (   d_model, num_heads  , device = device, dtype = dtype , max_seq_len = max_seq_len, theta = theta)
         self.ffn = FFN_swiglu ( d_model, d_ff = d_ff , device = device, dtype = dtype )
 
