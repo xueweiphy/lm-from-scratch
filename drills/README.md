@@ -53,6 +53,6 @@ both terms. Two new ones, found on review:
 Still open, and still using stand-ins: AdamW (`torch.optim.AdamW`), the cosine schedule
 with warmup, and gradient clipping. Those are the target for drill 3.
 
-Minor, not fixed: `RmsNorm` adds eps outside the square root (`x/(sqrt(ms)+eps)`) where
-the reference has it inside (`x/sqrt(ms+eps)`); the two differ only when the mean square
-approaches zero.
+3. `RmsNorm` added eps outside the square root (`x/(sqrt(ms)+eps)`) where the reference
+   has it inside (`x/sqrt(ms+eps)`). The two differ only when the mean square approaches
+   zero — but that is the case eps exists to bound. Fixed.
