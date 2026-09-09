@@ -61,6 +61,8 @@ for ii in range ( Nini, Nrun ) :
 
     logits = transformer ( xin )
     loss = cross_entropy ( logits, xpred )
+    if not torch.isfinite ( loss ) or loss.item() > 20 :          # diverged — stop, don't burn the GPU
+        print ( f"DIVERGED at step {ii}, loss = {loss.item()}" ) ; break
     loss.backward()
     gradient_clipping ( transformer.parameters(), Max_norm )
     for g in opt.param_groups :

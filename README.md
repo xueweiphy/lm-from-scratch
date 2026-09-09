@@ -93,6 +93,7 @@ experiments/  tokenizer experiments, arXiv corpus builder, corpus → uint16 tok
 data/         corpora and encoded token IDs (gitignored): TinyStories valid .txt/.npy, sample_50MB.txt
 train.py      training loop: memmap data, warmup+cosine LR, clipping, checkpoints, CSV logging
 sweep.sh      learning-rate sweep launcher (sequential, one GPU)
+sweep_batch.sh  batch-size sweep launcher (fixed step budget, one GPU)
 tests/        pytest suite for the training utilities (mirrors the CS336 checks)
 drills/       timed from-memory rebuilds of the whole model (practice notebooks, not library code)
 ```
@@ -112,6 +113,8 @@ python train.py Nrun=5000 Batch_size=32 Device=mps     # any setting at the top 
 python train.py LoadCkpt=True                            # resume from the checkpoint, append to the CSV log
 bash sweep.sh probe ; bash sweep.sh                      # LR sweep on one GPU (see the header for the SWAN recipe)
 python experiments/plot_sweep.py                         # logs/lr*.csv → experiments/lr_sweep.png
+LRS="2e-2 5e-2 1e-1 2e-1" LOGDIR=logs_edge bash sweep.sh   # edge of stability: push lr until a run diverges (CLIP=1e9 to see it undamped)
+bash sweep_batch.sh ; python experiments/plot_batch.py    # batch 1..256 at fixed lr → batch_sweep.png (steps / tokens / wall-clock)
 ```
 
 Training writes `checkpoints/<name>.pt` (model + optimizer + step, resumable) and
