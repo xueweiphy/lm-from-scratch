@@ -175,8 +175,9 @@ class MultiheadSelfAttention ( torch.nn.Module) :
 
 
 class Transformer_block (torch.nn.Module) :
-    def __init__ ( self, d_model, num_heads, d_ff ,eps : float = 1e-5, device = None,  dtype = None , max_seq_len = None, theta = None , norm = "rms" ):
+    def __init__ ( self, d_model, num_heads, d_ff ,eps : float = 1e-5, device = None,  dtype = None , max_seq_len = None, theta = None , norm = "rms" , norm_pos = "pre" ):
         super().__init__()
+        self.norm_pos = norm_pos
         self.norm1 = RmsNorm ( d_model, eps,  device , dtype ) if norm == "rms" else torch.nn.Identity()   # norm="none" -> layer_norm_ablation
         self.norm2 = RmsNorm ( d_model, eps,  device , dtype ) if norm == "rms" else torch.nn.Identity()
         self.mha = MultiheadSelfAttention  (   d_model, num_heads  , device = device, dtype = dtype , max_seq_len = max_seq_len, theta = theta)
@@ -186,12 +187,12 @@ class Transformer_block (torch.nn.Module) :
 
     def forward ( self, xin,  token_positions = None ) :
 
-        x = self.norm1 ( xin ) 
-        x = xin + self.mha ( x , token_positions = token_positions) 
-    
-        y = self.norm2 ( x ) 
-    
-        y = x + self.ffn (y ) 
+        if self.norm_pos == "pre" :                                    # x + f( norm(x) )
+            x = xin + self.mha ( self.norm1 ( xin ) , token_positions = token_positions )
+            y = x + self.ffn ( self.norm2 ( x ) )
+        else :                                                         # norm( x + f(x) )  -- pre_norm_ablation
+            x = self.norm1 ( xin + self.mha ( xin , token_positions = token_positions ) )
+            y = self.norm2 ( x + self.ffn ( x ) )
 
         return y 
 
@@ -200,13 +201,13 @@ class Transformer_block (torch.nn.Module) :
 
 class Transformer_lm ( torch.nn.Module ) :
     def __init__ ( self, vocab_size,  context_length ,  num_layers, d_model, num_heads, d_ff ,
-                   eps : float = 1e-5, device = None,  dtype = None , theta = None , norm = "rms" )  :
+                   eps : float = 1e-5, device = None,  dtype = None , theta = None , norm = "rms" , norm_pos = "pre" )  :
 
         super().__init__()
         self.cmap = Embedding ( vocab_size , d_model, device = device , dtype = dtype )
         
         self.block = torch.nn.ModuleList ( [ Transformer_block ( d_model, num_heads, d_ff ,eps, 
-                                        device = device, dtype = dtype , max_seq_len = context_length, theta = theta , norm = norm )  
+                                        device = device, dtype = dtype , max_seq_len = context_length, theta = theta , norm = norm , norm_pos = norm_pos )  
                                              for _ in range ( num_layers )  ] ) 
 
         self.norm = RmsNorm ( d_model, eps,  device , dtype ) if norm == "rms" else torch.nn.Identity()
