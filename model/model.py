@@ -68,6 +68,29 @@ class FFN_swiglu ( torch.nn.Module ) :
         return out
 
 
+class FFN_silu ( torch.nn.Module ) :
+    def __init__ ( self, dmodel,  d_ff = None , device = None, dtype = None ) :
+        super().__init__()
+        if d_ff is None :
+            d_ff =  4 * dmodel 
+        self.dmodel = dmodel
+        self.dff    = d_ff
+        self.W1 = Linear ( dmodel, d_ff, device=device, dtype=dtype )
+        #self.W3 = Linear ( dmodel, d_ff, device=device, dtype=dtype )
+        self.W2 = Linear ( d_ff, dmodel, device=device, dtype=dtype )
+
+        
+    def forward ( self, x ) :
+        y = self.W1 ( x) 
+        out = self.W2 (  y* torch.sigmoid ( y )   )
+
+        return out
+
+
+
+
+
+
 
 class RoPE ( torch.nn.Module ) :
     def __init__ ( self, theta, d_k, max_seq_len , device = None )  :
