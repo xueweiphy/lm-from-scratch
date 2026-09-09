@@ -94,6 +94,7 @@ data/         corpora and encoded token IDs (gitignored): TinyStories valid .txt
 train.py      training loop: memmap data, warmup+cosine LR, clipping, checkpoints, CSV logging
 sweep.sh      learning-rate sweep launcher (sequential, one GPU)
 sweep_batch.sh  batch-size sweep launcher (fixed step budget, one GPU)
+ablate.sh     architecture ablations: no-norm, post-norm, NoPE, SiLU-FFN
 tests/        pytest suite for the training utilities (mirrors the CS336 checks)
 drills/       timed from-memory rebuilds of the whole model (practice notebooks, not library code)
 ```
@@ -115,6 +116,7 @@ bash sweep.sh probe ; bash sweep.sh                      # LR sweep on one GPU (
 python experiments/plot_sweep.py                         # logs/lr*.csv → experiments/lr_sweep.png
 LRS="2e-2 5e-2 1e-1 2e-1" LOGDIR=logs_edge bash sweep.sh   # edge of stability: push lr until a run diverges (CLIP=1e9 to see it undamped)
 bash sweep_batch.sh ; python experiments/plot_batch.py    # batch 1..256 at fixed lr → batch_sweep.png (steps / tokens / wall-clock)
+bash ablate.sh ; python experiments/plot_ablate.py         # the four §7.3 ablations vs the baseline
 ```
 
 Training writes `checkpoints/<name>.pt` (model + optimizer + step, resumable) and
