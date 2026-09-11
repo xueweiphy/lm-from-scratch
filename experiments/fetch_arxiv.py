@@ -123,9 +123,12 @@ def parse_atom(xml_bytes):
     return out
 
 
-def fetch_page(category, start, per_page, delay, retries=3):
+def fetch_page(category, start, per_page, delay, retries=3, year=None):
+    query = f'cat:{category}'
+    if year is not None :                       # the API paginates to 10,000 results per query,
+        query += f' AND submittedDate:[{year}01010000 TO {year}12312359]'   # so slice by year to get past it
     q = urllib.parse.urlencode({
-        'search_query': f'cat:{category}',
+        'search_query': query,
         'start': start,
         'max_results': per_page,
         'sortBy': 'submittedDate',
@@ -165,6 +168,9 @@ def main():
     p = argparse.ArgumentParser(description=__doc__,
                                 formatter_class=argparse.RawDescriptionHelpFormatter)
     p.add_argument('--category',     default='hep-ph')
+    p.add_argument('--year',         type=int, default=None,
+                   help='restrict to one submission year; the stem gets _<year>. '
+                        'Use this to get past the 10,000-results-per-query cap')
     p.add_argument('--out',          default=None,
                    help='output stem; default data/arxiv_<category>. '
                         'Writes <stem>_train.txt and <stem>_valid.txt')
@@ -191,12 +197,12 @@ def main():
     if args.self_test:
         return self_test()
 
-    print(f"[fetch] category {args.category}, target {args.target_chars:,} chars")
+    print(f"[fetch] category {args.category}{' ' + str(args.year) if args.year else ''}, target {args.target_chars:,} chars")
     seen, records, total = set(), [], 0
 
     for page in range(args.max_pages):
         start = page * args.per_page
-        batch = fetch_page(args.category, start, args.per_page, args.delay)
+        batch = fetch_page(args.category, start, args.per_page, args.delay, year=args.year)
         if not batch:
             print(f"[fetch] no results at start={start}; stopping")
             break
@@ -230,6 +236,8 @@ def main():
 
     n_valid = max(1, int(len(records) * args.valid_frac))
     stem = args.out or os.path.join(DATA_DIR, f"arxiv_{args.category.replace('.', '_').replace('-', '')}")
+    if args.year and not args.out :
+        stem += f"_{args.year}"
     os.makedirs(os.path.dirname(stem) or ".", exist_ok=True)
     for split, subset in (("valid", records[:n_valid]), ("train", records[n_valid:])):
         text = to_corpus(subset, titles=not args.no_titles)
