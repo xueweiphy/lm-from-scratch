@@ -163,14 +163,43 @@ class MultiheadSelfAttention ( torch.nn.Module) :
 
 
 
+    def split_heads ( self, x, d ) :
+        """(..., seq, num_heads * d) -> (..., num_heads, seq, d).
+
+        view splits the last axis in the same order the old per-head slicing
+        used (head ii owns columns ii*d : (ii+1)*d), so trained weights are
+        unchanged; transpose then puts heads in front of seq so one matmul
+        batches over them."""
+        return x.view ( *x.shape[:-1], self.num_heads, d ).transpose ( -3, -2 )
+
+
     def forward ( self, xin, token_positions = None  )  :
 
-        Qmulti = self.Wq ( xin )
+        seq_len = xin.shape[-2]
+        mask = torch.ones ( seq_len, seq_len, dtype=torch.bool, device=xin.device ).tril()
 
+        if token_positions is None :
+            token_positions = torch.arange ( seq_len , device = xin.device ) 
+
+        Q = self.split_heads ( self.Wq ( xin ), self.d_k )
+        K = self.split_heads ( self.Wk ( xin ), self.d_k )
+        V = self.split_heads ( self.Wv ( xin ), self.d_v )
+
+        if self.rope is not None :                       # (seq, d_k/2) broadcasts over the head axis
+            Q = self.rope ( Q, token_positions )
+            K = self.rope ( K, token_positions )
+
+        att = Attention ( Q, K, V, mask )                # one batched matmul, not num_heads of them
+
+        att = att.transpose ( -3, -2 ).contiguous().reshape ( *xin.shape[:-1], -1 )
+        return self.Wo ( att )
+
+
+    def forward_loop ( self, xin, token_positions = None  )  :
+        """The original per-head loop, kept to check forward against."""
+        Qmulti = self.Wq ( xin )
         Kmulti = self.Wk ( xin )
-        
         Vmulti = self.Wv ( xin  )
-        
 
         seq_len = xin.shape[-2]
         mask = torch.ones ( seq_len, seq_len, dtype=torch.bool, device=xin.device ).tril()
@@ -190,8 +219,6 @@ class MultiheadSelfAttention ( torch.nn.Module) :
                 Ki = self.rope ( Ki, token_positions ) 
             
             att.append ( Attention ( Qi, Ki, Vi, mask ) )
-
-            
 
         out = self.Wo ( torch.cat ( att, dim = -1 ))
         return out
