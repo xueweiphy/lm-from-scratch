@@ -157,7 +157,7 @@ is built per call from the sequence length.
 tokenizer/    bpe.py, bpe_multiprocessing.py — training;  tokenizer.py — encode/decode
 model/        model.py — all modules + softmax, attention, cross-entropy
 training/     optim.py — AdamW;  schedule.py — cosine LR schedule with warmup;  clip.py — gradient clipping;  data.py — random-window batch loader;  checkpoint.py — save/load
-experiments/  tokenizer experiments, arXiv corpus builder, corpus → uint16 token-ID encoding, and the trained vocabularies
+experiments/  tokenizer experiments, arXiv corpus builders (API and Kaggle dump), corpus → uint16 token-ID encoding, and the trained vocabularies
 data/         corpora and encoded token IDs (gitignored): TinyStories valid .txt/.npy, sample_50MB.txt
 train.py      training loop: memmap data, warmup+cosine LR, clipping, checkpoints, CSV logging
 generate.py   sampling from a checkpoint: temperature, top-p (nucleus), <|endoftext|> stop
@@ -176,6 +176,7 @@ python experiments/tokenizer_experiments.py       # reads data/ (TinyStories + O
 python experiments/encode_datasets.py               # TinyStories valid, 50 MB sample, train → uint16 .npy (skips existing)
 python experiments/fetch_arxiv.py                   # arXiv hep-ph abstracts → data/arxiv_hepph_{train,valid}.txt in TinyStories layout
 python experiments/fetch_arxiv.py --year 2019       # one submission year (the API paginates to 10k results per query)
+python experiments/arxiv_from_kaggle.py hep-ph      # every hep-ph abstract, from the Kaggle metadata dump in data/ (no API calls)
 python experiments/train_arxiv_bpe.py               # BPE over the arXiv abstracts → experiments/arxiv_hepph_vocab10000.json
 python -m pytest tests/                            # schedule, clipping, data loader, checkpointing
 ```
