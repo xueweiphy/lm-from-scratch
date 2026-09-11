@@ -274,9 +274,8 @@ class Transformer_lm ( torch.nn.Module ) :
 
         if last_only :
             x = x[..., -1:, :]
-            
-            x = self.norm (x)
-            x = self.lin ( x ) 
+        x = self.norm (x)
+        x = self.lin ( x ) 
         return x 
 
 
