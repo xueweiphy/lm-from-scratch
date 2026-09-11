@@ -26,6 +26,9 @@ for arg in sys.argv[1:]:                       # e.g. Nrun=5000 -> Nrun = 5000 (
     globals()[key] = value == "True" if isinstance(default, bool) else type(default)(value)
 Dff = round ( 8 * Dmodel / 3 / 64 ) * 64 if Ffn == "swiglu" else 4 * Dmodel
 Tc = Nrun
+Config = dict ( vocab_size = Vocab_size, context_length = Context_length, num_layers = Num_layers,
+                d_model = Dmodel, num_heads = Num_heads, d_ff = Dff, theta = Theta if Pos == "rope" else None,
+                norm = Norm, norm_pos = Norm_pos, ffn = Ffn )     # goes into the checkpoint, so it reloads itself
 # ---------------------------------------------------------------------------
 
 data = np.load ( File_train, mmap_mode="r" )
@@ -70,7 +73,7 @@ for ii in range ( Nini, Nrun ) :
         g["lr"] = learning_rate_schedule ( ii, Alpha_max, Alpha_min, Tw, Tc )
     opt.step()
     if ( ii % Index_checkpoint == 0 and ii > 0 ) or ii == Nrun - 1 :
-        save_checkpoint ( transformer, opt, ii, Ckpt_path )
+        save_checkpoint ( transformer, opt, ii, Ckpt_path, Config )
         print ( f"checkpoint, save to {Ckpt_path}" )
     if ii % Eval_every == 0 or ii == Nrun - 1 :
         val_loss = loss_estimate ( transformer, data_val, Eval_batches )
