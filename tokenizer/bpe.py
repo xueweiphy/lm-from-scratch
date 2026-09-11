@@ -259,6 +259,7 @@ class BPE:
 
     def decode(self, ids):
         """Decode a list of token IDs back into text."""
+        ids = ids.tolist() if hasattr(ids, "tolist") else ids
         strs_bytes = b''.join(self.vocab[dd] for dd in ids)
         strs = strs_bytes.decode("utf-8", errors="replace")
         return strs

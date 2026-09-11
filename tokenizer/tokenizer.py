@@ -168,5 +168,6 @@ class Tokenizer:
 
     def decode(self, ids):
         """Decode a list of token IDs back into text."""
+        ids = ids.tolist() if hasattr(ids, "tolist") else ids
         token_bytes = b"".join(self.vocab[i] for i in ids if i in self.vocab)
         return token_bytes.decode("utf-8", errors="replace")

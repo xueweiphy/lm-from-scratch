@@ -10,13 +10,14 @@ load_checkpoint hands it back so training resumes at the right step.
 import torch
 
 
-def save_checkpoint ( model , optimizer, iteration, out ) :
+def save_checkpoint ( model , optimizer, iteration, out , config = None) :
     state_dict = {}
     st1  = model.state_dict()
     st2 = optimizer.state_dict ()
     state_dict["model"] = st1
     state_dict["optimizer"] = st2
     state_dict["iteration"] = iteration
+    state_dict["config"] = config
     torch.save ( state_dict, out )
 
 

@@ -120,7 +120,9 @@ class RoPE ( torch.nn.Module ) :
 
 
 
-def softmax ( x, dim )  :
+def softmax ( x, dim , temp = None, eps = 1e-8)  :
+    if temp is not None :
+        x = x/ (  temp + eps )
     xexp = (x- x.max ( dim =dim , keepdim = True).values ).exp()
     xexpsum = xexp.sum ( dim= dim , keepdim = True )
     out = xexp / xexpsum 
@@ -237,14 +239,17 @@ class Transformer_lm ( torch.nn.Module ) :
         self.lin = Linear (  d_model, vocab_size, device , dtype )
 
 
-    def forward ( self, xin  ) :
+    def forward ( self, xin , last_only = False ) :
         positions = torch.arange ( xin.shape [-1 ], device = xin.device) 
         x = self.cmap ( xin )
         for bb in self.block :
             x = bb ( x, positions ) 
 
-        x = self.norm (x)
-        x = self.lin ( x ) 
+        if last_only :
+            x = x[..., -1:, :]
+            
+            x = self.norm (x)
+            x = self.lin ( x ) 
         return x 
 
 

@@ -92,6 +92,7 @@ training/     optim.py — AdamW;  schedule.py — cosine LR schedule with warmu
 experiments/  tokenizer experiments, arXiv corpus builder, corpus → uint16 token-ID encoding, and the trained vocabularies
 data/         corpora and encoded token IDs (gitignored): TinyStories valid .txt/.npy, sample_50MB.txt
 train.py      training loop: memmap data, warmup+cosine LR, clipping, checkpoints, CSV logging
+generate.py   sampling from a checkpoint: temperature, top-p (nucleus), <|endoftext|> stop
 sweep.sh      learning-rate sweep launcher (sequential, one GPU)
 sweep_batch.sh  batch-size sweep launcher (fixed step budget, one GPU)
 ablate.sh     architecture ablations: no-norm, post-norm, NoPE, SiLU-FFN
@@ -112,6 +113,7 @@ python -m pytest tests/                            # schedule, clipping, data lo
 ```bash
 python train.py Nrun=5000 Batch_size=32 Device=mps     # any setting at the top of train.py as key=value
 python train.py LoadCkpt=True                            # resume from the checkpoint, append to the CSV log
+python generate.py Prompt="Once upon a time" Temp=0.7 Topp=0.9   # sample from checkpoints/baseline.pt
 bash sweep.sh probe ; bash sweep.sh                      # LR sweep on one GPU (see the header for the SWAN recipe)
 python experiments/plot_sweep.py                         # logs/lr*.csv → experiments/lr_sweep.png
 LRS="2e-2 5e-2 1e-1 2e-1" LOGDIR=logs_edge bash sweep.sh   # edge of stability: push lr until a run diverges (CLIP=1e9 to see it undamped)
