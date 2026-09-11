@@ -13,6 +13,7 @@ from tokenizer import BPE
 
 DATA_DIR = os.path.join(ROOT, "data")
 VOCAB = os.path.join(ROOT, "experiments", "tinystories_vocab10000.json")
+VOCAB_ARXIV = os.path.join(ROOT, "experiments", "arxiv_hepph_vocab10000.json")
 
 
 def encode_file(text_path, npy_path, vocab_path=VOCAB):
@@ -24,17 +25,26 @@ def encode_file(text_path, npy_path, vocab_path=VOCAB):
     print(f"{len(ids):,} tokens, max id {ids.max()}, {len(text.encode()) / len(ids):.2f} bytes/token")
 
 
-CORPORA = [  # (text file, output .npy) — smallest first; the train file takes ~2 h single-process
-    ("TinyStoriesV2-GPT4-valid.txt", "tinystories_valid.npy"),
-    ("sample_50MB.txt", "tinystories_sample50MB.npy"),
-    ("TinyStoriesV2-GPT4-train.txt", "tinystories_train.npy"),
+CORPORA = [  # (text file, output .npy, vocab) — smallest first; TinyStories train takes ~2 h single-process
+    ("TinyStoriesV2-GPT4-valid.txt", "tinystories_valid.npy", VOCAB),
+    ("sample_50MB.txt", "tinystories_sample50MB.npy", VOCAB),
+    ("TinyStoriesV2-GPT4-train.txt", "tinystories_train.npy", VOCAB),
+    # arXiv: the TinyStories vocab for fine-tuning an existing checkpoint (the
+    # embedding table is tied to it), the arXiv vocab for training from scratch.
+    ("arxiv_hepph_valid.txt", "arxiv_hepph_valid.npy", VOCAB),
+    ("arxiv_hepph_train.txt", "arxiv_hepph_train.npy", VOCAB),
+    ("arxiv_hepph_valid.txt", "arxiv_hepph_nativevocab_valid.npy", VOCAB_ARXIV),
+    ("arxiv_hepph_train.txt", "arxiv_hepph_nativevocab_train.npy", VOCAB_ARXIV),
 ]
 
 if __name__ == "__main__":
-    for text_name, npy_name in CORPORA:
+    for text_name, npy_name, vocab in CORPORA:
         npy_path = f"{DATA_DIR}/{npy_name}"
         if os.path.exists(npy_path):
             print(f"{npy_name}: already exists, skipping")
             continue
-        print(f"{text_name} -> {npy_name}")
-        encode_file(f"{DATA_DIR}/{text_name}", npy_path)
+        if not os.path.exists(f"{DATA_DIR}/{text_name}") or not os.path.exists(vocab):
+            print(f"{npy_name}: missing input or vocab, skipping")
+            continue
+        print(f"{text_name} -> {npy_name}  [{os.path.basename(vocab)}]")
+        encode_file(f"{DATA_DIR}/{text_name}", npy_path, vocab)

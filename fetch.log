@@ -1,0 +1,67 @@
+[warn] HTTPError: HTTP Error 500: Internal Server Error -- retrying in 12s
+[warn] HTTPError: HTTP Error 500: Internal Server Error -- retrying in 18s
+[warn] HTTPError: HTTP Error 500: Internal Server Error -- retrying in 24s
+[fetch] category hep-ph, target 30,000,000 chars
+[fetch] start=    0  got 200  kept 199  total 238,026 chars
+[fetch] start=  200  got 200  kept 200  total 470,649 chars
+[fetch] start=  400  got 200  kept 199  total 711,257 chars
+[fetch] start=  600  got 200  kept 199  total 952,067 chars
+[fetch] start=  800  got 200  kept 199  total 1,192,002 chars
+[fetch] start= 1000  got 200  kept 199  total 1,429,345 chars
+[fetch] start= 1200  got 200  kept 198  total 1,667,428 chars
+[fetch] start= 1400  got 200  kept 198  total 1,899,473 chars
+[fetch] start= 1600  got 200  kept 200  total 2,130,322 chars
+[fetch] start= 1800  got 200  kept 199  total 2,364,194 chars
+[fetch] start= 2000  got 200  kept 198  total 2,603,323 chars
+[fetch] start= 2200  got 200  kept 200  total 2,833,089 chars
+[fetch] start= 2400  got 200  kept 200  total 3,062,783 chars
+[fetch] start= 2600  got 200  kept 199  total 3,292,347 chars
+[fetch] start= 2800  got 200  kept 200  total 3,526,299 chars
+[fetch] start= 3000  got 200  kept 199  total 3,748,102 chars
+[fetch] start= 3200  got 200  kept 199  total 3,981,820 chars
+[fetch] start= 3400  got 200  kept 198  total 4,197,435 chars
+[fetch] start= 3600  got 200  kept 197  total 4,416,408 chars
+[fetch] start= 3800  got 200  kept 198  total 4,636,141 chars
+[fetch] start= 4000  got 200  kept 199  total 4,861,126 chars
+[fetch] start= 4200  got 200  kept 198  total 5,092,145 chars
+[fetch] start= 4400  got 200  kept 197  total 5,318,121 chars
+[fetch] start= 4600  got 200  kept 200  total 5,534,757 chars
+[fetch] start= 4800  got 200  kept 199  total 5,748,733 chars
+[fetch] start= 5000  got 200  kept 198  total 5,973,589 chars
+[fetch] start= 5200  got 200  kept 198  total 6,195,153 chars
+[fetch] start= 5400  got 200  kept 197  total 6,412,697 chars
+[fetch] start= 5600  got 200  kept 198  total 6,634,880 chars
+[fetch] start= 5800  got 200  kept 195  total 6,849,308 chars
+[fetch] start= 6000  got 200  kept 196  total 7,061,067 chars
+[fetch] start= 6200  got 200  kept 198  total 7,274,162 chars
+[fetch] start= 6400  got 200  kept 200  total 7,483,743 chars
+[fetch] start= 6600  got 200  kept 199  total 7,712,644 chars
+[fetch] start= 6800  got 200  kept 198  total 7,931,343 chars
+[fetch] start= 7000  got 200  kept 200  total 8,142,209 chars
+[fetch] start= 7200  got 200  kept 199  total 8,354,607 chars
+[fetch] start= 7400  got 200  kept 200  total 8,576,905 chars
+[fetch] start= 7600  got 200  kept 200  total 8,797,732 chars
+[fetch] start= 7800  got 200  kept 200  total 9,003,275 chars
+[fetch] start= 8000  got 200  kept 199  total 9,218,680 chars
+[fetch] start= 8200  got 200  kept 196  total 9,429,840 chars
+[fetch] start= 8400  got 200  kept 199  total 9,640,309 chars
+[fetch] start= 8600  got 200  kept 197  total 9,855,084 chars
+[fetch] start= 8800  got 200  kept 200  total 10,065,529 chars
+[fetch] start= 9000  got 200  kept 199  total 10,272,249 chars
+[fetch] start= 9200  got 200  kept 197  total 10,476,244 chars
+[fetch] start= 9400  got 200  kept 197  total 10,685,892 chars
+[fetch] start= 9600  got 200  kept 196  total 10,891,567 chars
+[fetch] start= 9800  got 200  kept 199  total 11,104,688 chars
+[fetch] no results at start=10000; stopping
+------------------------------------------------------------------
+[done] /Users/weixue/UF Dropbox/Wei Xue/Mercurial/AI/NNlecture/lm-from-scratch/data/arxiv_hepph_valid.txt
+  documents     : 992   (992 <|endoftext|> markers)
+  characters    : 1,191,067
+  chars/document: 1,200
+------------------------------------------------------------------
+------------------------------------------------------------------
+[done] /Users/weixue/UF Dropbox/Wei Xue/Mercurial/AI/NNlecture/lm-from-scratch/data/arxiv_hepph_train.txt
+  documents     : 8,934   (8,934 <|endoftext|> markers)
+  characters    : 10,841,542
+  chars/document: 1,213
+------------------------------------------------------------------

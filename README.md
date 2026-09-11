@@ -107,6 +107,8 @@ pip install -r requirements.txt
 python experiments/tokenizer_experiments.py       # reads data/ (TinyStories + OWT valid files)
 python experiments/encode_datasets.py               # TinyStories valid, 50 MB sample, train → uint16 .npy (skips existing)
 python experiments/fetch_arxiv.py                   # arXiv hep-ph abstracts → data/arxiv_hepph_{train,valid}.txt in TinyStories layout
+python experiments/fetch_arxiv.py --year 2019       # one submission year (the API paginates to 10k results per query)
+python experiments/train_arxiv_bpe.py               # BPE over the arXiv abstracts → experiments/arxiv_hepph_vocab10000.json
 python -m pytest tests/                            # schedule, clipping, data loader, checkpointing
 ```
 
